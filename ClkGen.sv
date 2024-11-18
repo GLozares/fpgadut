@@ -31,17 +31,17 @@ module ClkGen(
     
     assign bMaxValue = 20000000;
     
-    always @(posedge BrdClk) begin 
-      if (!aReset_n) begin 
+    always @(posedge BrdClk or posedge aReset_n) begin 
+      if (aReset_n) begin 
         SlowClk <= 0;
         bClkCounter <= 0;
       end 
-      else begin     
+      else begin 
+        bClkCounter <= bClkCounter + 1;
         if (bClkCounter == bMaxValue) begin
-          SlowClk <= ~SlowClk;
           bClkCounter <= 0;
+          SlowClk <= ~SlowClk;
         end
-        else bClkCounter <= bClkCounter + 1; 
       end
     end
     
