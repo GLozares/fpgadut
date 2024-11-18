@@ -39,12 +39,23 @@ module UpCounter(
     
     //  First create 4 connections to hold intermediate scan values
     reg bScan0, bScan1, bScan2, bScan3;
+    reg [3:0] bCountInt; 
     
     //  Manual assignment of digits due to scan pattern 
-    assign bCount = {bScan3, bScan2, bScan1, bScan0};
+    assign bCountInt = {bScan3, bScan2, bScan1, bScan0};
     
     //  bScan3 will match bScanOut 
     assign bScanOut = bCount[3];
+
+    //  mux output 
+    always @(aScanEn or aIncrement) begin 
+      if(aScanEn) begin 
+        bCount <= bCountInt;
+      end
+      else begin 
+        bCount <= {bScan3, bScan2, bScan1, bScan0};
+      end
+    end
     
     always @(posedge BrdClk) begin 
       if (!aReset_n) begin                    // Reset
@@ -61,11 +72,11 @@ module UpCounter(
           bScan3 <= bScan2;
         end
         else                                  // Normal Operation (Counter)
-          if (aIncrement) begin                                  //Else do not change output
-            bCount <= bCount + 1; 
+          if (aIncrement) begin                                  
+            bCountInt <= bCountInt + 1; 
           end 
-          else begin 
-            bCount <= bCount;
+          else begin                          //Else do not change output
+            bCountInt <= bCountInt;
           end
         end
       end
